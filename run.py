@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AgentPronos.
+"""Pronos.
 
   run.py census              refresh the vault census from UniProtKB
   run.py publish <webroot>   write <webroot>/status.json

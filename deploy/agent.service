@@ -1,10 +1,10 @@
 [Unit]
-Description=AgentPronos: Corbel, the autonomous agent (one step every 5 minutes)
+Description=Pronos: Corbel, the autonomous agent (one step every 5 minutes)
 After=network-online.target
 [Service]
 Type=simple
-WorkingDirectory=/opt/agentpronos
-ExecStart=/usr/bin/python3 /opt/agentpronos/run.py agent 300
+WorkingDirectory=/opt/pronos
+ExecStart=/usr/bin/python3 /opt/pronos/run.py agent 300
 Nice=19
 CPUWeight=20
 MemoryMax=768M

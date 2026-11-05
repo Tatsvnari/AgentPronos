@@ -1,8 +1,8 @@
 [Unit]
-Description=AgentPronos: publish the research record
+Description=Pronos: publish the research record
 [Service]
 Type=oneshot
-WorkingDirectory=/opt/agentpronos
-ExecStart=/opt/agentpronos/deploy/publish.sh
+WorkingDirectory=/opt/pronos
+ExecStart=/opt/pronos/deploy/publish.sh
 Nice=19
 MemoryMax=512M

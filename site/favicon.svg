@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <title>AgentPronos</title>
+  <title>Pronos</title>
   <rect width="64" height="64" rx="14" fill="#faf9f5"/>
   <!-- the vault: a barrel with stepped caps -->
   <path d="M25 5 H39 V8 H45 V12 C50 15 53 21 53 27 V37 C53 43 50 49 45 52 V56 H39 V59 H25 V56 H19 V52 C14 49 11 43 11 37 V27 C11 21 14 15 19 12 V8 H25 Z" fill="#2f7565"/>

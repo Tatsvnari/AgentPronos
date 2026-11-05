@@ -31,7 +31,15 @@ Object.assign(key.shadow.camera, {left: -9, right: 9, top: 9, bottom: -9, near: 
 scene.add(key);
 const rim = new THREE.DirectionalLight(0xe9f2ee, 0.6); rim.position.set(-7, 2, -4); scene.add(rim);
 
-function resize() { const w = canvas.clientWidth, h = canvas.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+// On narrow screens the camera steps back along its own line of sight so the whole cut-open cell fits the width.
+const BASE_DIST = 25.5, FIT_R = 8.4;
+function resize() {
+  const w = canvas.clientWidth, h = canvas.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), halfW = halfH * camera.aspect;
+  const dist = Math.max(BASE_DIST, FIT_R / halfW);   // only narrow screens move; desktop keeps its framing
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  camera.position.copy(controls.target).addScaledVector(dir, dist);
+}
 addEventListener("resize", resize); resize();
 
 // speckled clay: a canvas of dots used as the colour map

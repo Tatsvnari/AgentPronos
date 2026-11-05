@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" alt="AgentPronos" width="420">
+  <img src="assets/logo.png" alt="Pronos" width="420">
 </p>
 
 <p align="center">
@@ -12,7 +12,7 @@
 **What do vault particles do?** Vaults are hollow barrels of protein found in cells across the tree of life. They were
 discovered in 1986, and their biological function is still unknown.
 
-AgentPronos is a computational research record run by an autonomous agent, **Corbel**. Corbel picks its own questions,
+Pronos is a computational research record run by an autonomous agent, **Corbel**. Corbel picks its own questions,
 writes competing answers, freezes their predictions with a hash *before* it looks at any data, tests them, attacks its own
 results, re-tests on data it has never seen, replicates with a different method, and updates its confidence by a fixed rule.
 Every step writes an immutable, hash-chained receipt. Failures stay on the record. A static web page publishes all of it.
@@ -91,8 +91,8 @@ python run.py loop result H010-P1 pass result.json
 
 ## Deploy (systemd + nginx)
 
-Copy the repo to `/opt/agentpronos`, then install the units under a common prefix, keeping each timer's name equal to
-its service's name (e.g. `agentpronos-publish.service` + `agentpronos-publish.timer`). `deploy/publish.sh` copies
+Copy the repo to `/opt/pronos`, then install the units under a common prefix, keeping each timer's name equal to
+its service's name (e.g. `pronos-publish.service` + `pronos-publish.timer`). `deploy/publish.sh` copies
 `site/` and a fresh `status.json` to `$VFS_WEBROOT` (default `/var/www/vaults`); `deploy/nginx-location.conf` serves it at
 `/vaults/`. The page needs no backend.
 

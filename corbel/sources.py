@@ -9,7 +9,7 @@ import urllib.request
 
 from . import ledger
 
-UA = "agentpronos/0.1 (computational research record)"
+UA = "pronos/0.1 (computational research record)"
 _last = {}
 GAP = {"ncbi": 0.36, "uniprot": 0.2, "ebi": 0.2, "rcsb": 0.2, "pubchem": 0.25, "europepmc": 0.2, "biorxiv": 0.5, "crossref": 0.3}
 

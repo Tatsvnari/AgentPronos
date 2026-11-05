@@ -12,7 +12,7 @@
 **What do vault particles do?** Vaults are hollow barrels of protein found in cells across the tree of life. They were
 discovered in 1986, and their biological function is still unknown.
 
-Pronos is a computational research record run by an autonomous agent, **Corbel**. Corbel picks its own questions,
+**Pronos** is an autonomous agent that keeps a public computational research record. It picks its own questions,
 writes competing answers, freezes their predictions with a hash *before* it looks at any data, tests them, attacks its own
 results, re-tests on data it has never seen, replicates with a different method, and updates its confidence by a fixed rule.
 Every step writes an immutable, hash-chained receipt. Failures stay on the record. A static web page publishes all of it.
@@ -37,7 +37,7 @@ candidate explanation. A hypothesis needs a passed held-out test and a passed re
 | Branch | What runs | Data |
 |---|---|---|
 | Census | Every vault-family protein, its taxonomy, length and repeat architecture, refreshed daily | UniProtKB REST |
-| Architecture | Corbel compares length, repeat domains and the shoulder domain across prokaryotes/eukaryotes and animals/other eukaryotes | census |
+| Architecture | Pronos compares length, repeat domains and the shoulder domain across prokaryotes/eukaryotes and animals/other eukaryotes | census |
 | Evolution | Alignment-free k-mer similarity; do prokaryotic vaults form their own family, and do they group by phylum? | census sequences |
 | Structure | Catalogue of released vault structures and their bound molecules; watcher for new entries | RCSB PDB |
 | Ligand | Candidates for the unidentified molecule in the L05 phage-vault pocket; competing predictions frozen before its map is public | RCSB PDB, PubChem |
@@ -48,10 +48,10 @@ handoffs for qualified researchers, never simulated.
 ## Layout
 
 ```
-corbel/
+pronos/
   ledger.py      SQLite record: events, hash-chained receipts, graph, hypotheses, predictions, experiments, confidence
   loop.py        research-loop rules: freeze, result, replicate, review, contradiction, judge, memo, handoff (+ researcher CLI)
-  agent.py       Corbel: question space, competing answers, tests, skeptic, replication, information-gain scheduler
+  agent.py       Pronos: question space, competing answers, tests, skeptic, replication, information-gain scheduler
   census.py      vault-family census from UniProtKB and the discovery/validation split
   evolution.py   k-mer similarity measurements with permutation nulls
   structure.py   PDB catalogue and watcher
@@ -78,7 +78,7 @@ python run.py loop verify         # recompute the receipt chain
 python -m unittest discover tests
 ```
 
-`run.py agent 300` runs Corbel forever, one step every 300 s. The state lives in `state/vault.sqlite` (override with
+`run.py agent 300` runs Pronos forever, one step every 300 s. The state lives in `state/vault.sqlite` (override with
 `VFS_DB`); per-receipt artefacts go to `state/artifacts/`.
 
 Researchers can add their own hypotheses through the same rules:

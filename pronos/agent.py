@@ -1,4 +1,4 @@
-"""Corbel: the autonomous agent. One step per tick, forever.
+"""Pronos: the autonomous agent. One step per tick, forever.
 
 Its first rung is architecture: before asking what vaults do, establish how vault proteins are built across the tree of life
 (length, number of repeat domains, the shoulder domain) and how that differs between prokaryotes and eukaryotes. It never peeks
@@ -21,7 +21,7 @@ from scipy import stats as sst
 
 from . import census, evolution, ledger, ligand, loop, structure
 
-AGENT = "Corbel"
+AGENT = "Pronos"            # records written before the rename carry its former name, Corbel
 PROPS = {"length": "protein length", "repeats": "number of annotated MVP repeat domains", "shoulder": "having a shoulder domain"}
 SPLITS = {
     "prok_euk": ("prokaryotic", "eukaryotic", lambda r: r["domain"] in ("Bacteria", "Archaea"), lambda r: r["domain"] == "Eukaryota"),
@@ -331,7 +331,7 @@ def tick():
         return "ligand"
     # candidate actions: the next step of every open hypothesis
     cands = []
-    for h in ledger.db().execute("SELECT id, confidence, status FROM hypotheses WHERE creator=? AND status='ACTIVE' "
+    for h in ledger.db().execute("SELECT id, confidence, status FROM hypotheses WHERE creator IN (?, 'Corbel') AND status='ACTIVE' "
                                  "AND branch IN ('architecture','evolution')", (AGENT,)):
         done = s["steps"].get(h["id"], [])
         nxt = next((k for k in STEPS if k not in done), None)

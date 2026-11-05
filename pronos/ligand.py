@@ -138,10 +138,10 @@ def freeze_prospective():
         hid = loop.add_hypothesis({"statement": stmt, "mechanism": mech, "why_vault": "Concerns the ligand bound in every copy of the vault wall.",
                                    "branch": "ligand", "origin": "prospective:" + key, "question": "What is the molecule in the L05 pocket?",
                                    "answer": key, "predictions": [{"text": t, "kind": "prospective", "test": {"awaits": "L05 map and model release"}} for t in preds]},
-                                  creator="Corbel")
+                                  creator="Pronos")
         loop.freeze(hid)
         ids.append(hid)
     ledger.kv_set("prospective_frozen", ids)
-    ledger.event("Corbel", "prospective", "Froze %d competing answers about the L05 pocket (%s) before its map is public. When the structure is "
+    ledger.event("Pronos", "prospective", "Froze %d competing answers about the L05 pocket (%s) before its map is public. When the structure is "
                  "released these become genuinely held-out tests." % (len(ids), ", ".join(ids)))
     return ids

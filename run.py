@@ -5,13 +5,13 @@
   run.py publish <webroot>   write <webroot>/status.json
   run.py tick [n]            run n autonomous agent steps
   run.py agent [seconds]     run the agent forever, one step per interval
-  run.py loop ...            research loop commands (see corbel/loop.py)"""
+  run.py loop ...            research loop commands (see pronos/loop.py)"""
 import json
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from corbel import agent, census, ledger, loop, publish  # noqa: E402
+from pronos import agent, census, ledger, loop, publish  # noqa: E402
 
 if __name__ == "__main__":
     a = sys.argv[1:]

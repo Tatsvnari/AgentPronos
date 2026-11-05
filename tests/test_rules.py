@@ -12,7 +12,7 @@ sys.path.insert(0, ROOT)
 _TMP = tempfile.mkdtemp()
 os.environ["VFS_DB"] = os.path.join(_TMP, "test.sqlite")
 
-from corbel import census, ledger, loop  # noqa: E402
+from pronos import census, ledger, loop  # noqa: E402
 
 HYP = {"statement": "Test statement.", "mechanism": "Test mechanism.", "why_vault": "Test reason.",
        "predictions": [{"text": "P one", "kind": "discovery"}, {"text": "P two", "kind": "heldout"}, {"text": "P three", "kind": "phylo"}]}

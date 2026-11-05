@@ -9,6 +9,7 @@ const hm = ts => new Date(ts * 1000).toISOString().slice(11, 16);
 const day = ts => new Date(ts * 1000).toISOString().slice(0, 10);
 const TAG = l => { const k = /REJECT/.test(l) ? "rej" : /OBSERV|CANDIDATE|STRONG/.test(l) ? "obs" : /SPECUL/.test(l) ? "wait" : "hyp"; return `<span class="tag ${k}">${esc((l || "").toLowerCase())}</span>`; };
 let S = null, lastEvent = 0;
+const WHO = a => a === "Corbel" ? "Pronos" : a;   // the agent was renamed; entries before the rename say Corbel in the raw record
 
 function state(s) {
   const c = s.counts;
@@ -21,7 +22,7 @@ function state(s) {
 
 function stream(s) {
   const ev = s.events.slice(0, 40);
-  $("stream").innerHTML = ev.length ? ev.map((e, i) => `<div class="ev"><span class="t">${hm(e.ts)}<br>${day(e.ts).slice(5)}</span><span><span class="who">${esc(e.agent)}</span> · ${esc(e.text)}${e.ref ? ` <a class="ref" href="#/r/${esc(e.ref)}">${esc(e.ref)}</a>` : ""}${i === 0 ? ' <span class="cur"></span>' : ""}</span></div>`).join("")
+  $("stream").innerHTML = ev.length ? ev.map((e, i) => `<div class="ev"><span class="t">${hm(e.ts)}<br>${day(e.ts).slice(5)}</span><span><span class="who">${esc(WHO(e.agent))}</span> · ${esc(e.text)}${e.ref ? ` <a class="ref" href="#/r/${esc(e.ref)}">${esc(e.ref)}</a>` : ""}${i === 0 ? ' <span class="cur"></span>' : ""}</span></div>`).join("")
     : `<p class="empty">Nothing has happened yet.</p>`;
   const top = ev[0] ? ev[0].ts : 0;
   if (lastEvent && top > lastEvent) dispatchEvent(new Event("vfs:event"));
@@ -31,7 +32,7 @@ function stream(s) {
 const STEP = {discovery: "test", heldout: "hidden", phylo: "per-genus", replication: "replicate"};
 function hyps(s) {
   if (!s.hypotheses.length) {
-    $("hyps").innerHTML = `<p class="empty">No hypotheses yet. Corbel opens them itself, a question at a time, each with competing answers and at least three frozen predictions.</p>`;
+    $("hyps").innerHTML = `<p class="empty">No hypotheses yet. Pronos opens them itself, a question at a time, each with competing answers and at least three frozen predictions.</p>`;
     return;
   }
   const byQ = new Map();
@@ -44,7 +45,7 @@ function hyps(s) {
       }</td><td>${TAG(h.level)}</td><td class="r m"><span class="cbar"><i style="width:${(h.confidence * 100).toFixed(0)}%"></i></span>${h.confidence.toFixed(2)}</td></tr>`).join("")
     }</tbody></table>`;
   }
-  $("hyps").innerHTML = `<p>Each question Corbel has asked, with its rival answers. ✓ passed a frozen test, ✗ failed one, ? was inconclusive (usually too little data). Every mark links to its experiment.</p>` + html;
+  $("hyps").innerHTML = `<p>Each question Pronos has asked, with its rival answers. ✓ passed a frozen test, ✗ failed one, ? was inconclusive (usually too little data). Every mark links to its experiment.</p>` + html;
 }
 
 function structures(s) {
@@ -91,12 +92,12 @@ function branches(s) {
   const loc = s.census.located, n = s.census.total;
   const NOTE = {
     census: `${fmt(n)} proteins, refreshed from UniProtKB.`,
-    architecture: "Corbel compares length, repeat domains and the shoulder domain between prokaryotes and eukaryotes, and between animals and other eukaryotes.",
+    architecture: "Pronos compares length, repeat domains and the shoulder domain between prokaryotes and eukaryotes, and between animals and other eukaryotes.",
     structure: `${fmt((s.structures || []).length)} released vault structures catalogued from the PDB, with every bound molecule; checked every six hours for new ones, including the announced L05 phage vault.`,
     ligand: "Candidates for the pocket molecule ranked daily from released structures and PubChem; competing predictions about the pocket are frozen before the L05 map is public.",
     evolution: "Alignment-free sequence similarity (k-mer profiles) across the census: do prokaryotic vaults form their own family, and do they group by phylum?",
     neighbourhoods: `${fmt(loc)} of ${fmt(n)} vault genes are located on their genome records. Analysis of the genes around them is outside this project's scope.`,
-    literature: "Mining the published literature for earlier proposals is outside this project's scope; known findings are cited where Corbel's results touch them.",
+    literature: "Mining the published literature for earlier proposals is outside this project's scope; known findings are cited where Pronos's results touch them.",
     handoff: "Opens when a question needs a laboratory.",
   };
   $("branches").innerHTML = s.branches.map(b => `<li><span>${esc(b.name)}</span><span class="tag ${b.status === "running" ? "obs" : "wait"}">${esc(b.status)}</span><span class="note">${NOTE[b.id] || ""}</span></li>`).join("");
@@ -108,7 +109,7 @@ function receipts(s) {
   const ch = s.chain;
   $("receipts").innerHTML = `<p>${ch.ok ? `Chain verified: ${fmt(ch.n)} receipts, head <span class="mono">${esc((ch.head || "").slice(0, 16))}</span>.` : `<b>Chain broken at ${esc(ch.broken_at)}.</b>`}</p>` +
     `<table><thead><tr><th>Receipt</th><th>When</th><th>Agent</th><th>Summary</th><th>Level</th></tr></thead><tbody>${
-      s.receipts.slice(0, 30).map(r => `<tr><td class="m"><a href="#/r/${esc(r.id)}">${esc(r.id)}</a></td><td class="m">${day(r.ts)}</td><td>${esc(r.agent)}</td><td>${esc(r.summary)}</td><td>${TAG(r.level)}</td></tr>`).join("")
+      s.receipts.slice(0, 30).map(r => `<tr><td class="m"><a href="#/r/${esc(r.id)}">${esc(r.id)}</a></td><td class="m">${day(r.ts)}</td><td>${esc(WHO(r.agent))}</td><td>${esc(r.summary)}</td><td>${TAG(r.level)}</td></tr>`).join("")
     }</tbody></table>`;
 }
 
@@ -120,9 +121,9 @@ function render(s) {
   list("memo", s.memos, "The first memo is written after the first night of work.", m => { const b = JSON.parse(m.body); return `<p><span class="mono">${day(m.ts)}</span> · ${b.experiments} experiments, ${b.confidence_moves.length} confidence changes, ${b.open_contradictions.length} open contradictions, ${b.untested.length} frozen predictions still untested.</p>`; });
   list("handoffs", s.handoffs, "None yet.", h => `<p><b class="mono">${esc(h.id)}</b> · ${esc(h.hypothesis_id)}</p>`);
   $("sources").textContent = "Database versions on record: " + (Object.entries(s.sources).map(([k, v]) => k + " " + v).join("; ") || "none") + ".";
-  $("updated").textContent = "Corbel is working · record published " + ago(s.generated);
+  $("updated").textContent = "Pronos is working · record published " + ago(s.generated);
   const ev = s.events[0];
-  $("now-text").innerHTML = ev ? `<b>${esc(ev.agent)}</b> · ${esc(ev.text)} <span class="dim">(${ago(ev.ts)})</span>` : "Nothing yet.";
+  $("now-text").innerHTML = ev ? `<b>${esc(WHO(ev.agent))}</b> · ${esc(ev.text)} <span class="dim">(${ago(ev.ts)})</span>` : "Nothing yet.";
   buildTree(s.leaves);
   route();
 }
@@ -142,7 +143,7 @@ function route() {
   const [, kind, id] = m; let html = "";
   if (kind === "h") {
     const h = S.hypotheses.find(x => x.id === id);
-    html = h ? `<h1 style="text-align:left">${esc(h.id)}</h1><p class="dek">${esc(h.statement)}</p><p>${TAG(h.level)} · confidence <b class="mono">${h.confidence.toFixed(2)}</b> · opened ${day(h.created)} by ${esc(h.creator)} · branch ${esc(h.branch)}</p>
+    html = h ? `<h1 style="text-align:left">${esc(h.id)}</h1><p class="dek">${esc(h.statement)}</p><p>${TAG(h.level)} · confidence <b class="mono">${h.confidence.toFixed(2)}</b> · opened ${day(h.created)} by ${esc(WHO(h.creator))} · branch ${esc(h.branch)}</p>
       <h3>Mechanism</h3><p>${esc(h.mechanism)}</p><h3>Why a vault is necessary</h3><p>${esc(h.why_vault)}</p>${h.inside ? `<h3>Inside the vault</h3><p>${esc(h.inside)}</p>` : ""}${h.consequence ? `<h3>Predicted consequence</h3><p>${esc(h.consequence)}</p>` : ""}
       <h3>Predictions</h3><table><thead><tr><th>ID</th><th>Prediction</th><th>Kind</th><th>Frozen</th><th>Outcome</th></tr></thead><tbody>${h.predictions.map(p => `<tr><td class="m">${esc(p.id)}</td><td>${esc(p.text)}</td><td>${esc(p.kind)}</td><td class="m">${p.frozen_hash ? esc(p.frozen_hash.slice(0, 12)) + "<br>" + day(p.frozen_ts) : '<span class="dim">not yet</span>'}</td><td>${p.outcome ? `<a href="#/r/${esc(p.receipt_id)}">${esc(p.outcome)}</a>` : '<span class="dim">open</span>'}</td></tr>`).join("")}</tbody></table>
       <h3>Confidence over time</h3>${confSvg(h.history)}<table><tbody>${h.history.map(c => `<tr><td class="m">${day(c.ts)} ${hm(c.ts)}</td><td class="m">${c.value.toFixed(2)}</td><td>${esc(c.reason)}</td><td class="m">${c.receipt_id ? `<a href="#/r/${esc(c.receipt_id)}">${esc(c.receipt_id)}</a>` : ""}</td></tr>`).join("")}</tbody></table>
@@ -150,7 +151,7 @@ function route() {
       : `<p>No hypothesis ${esc(id)}.</p>`;
   } else if (kind === "e") {
     const e = S.experiments.find(x => x.id === id);
-    html = e ? `<h1 style="text-align:left">${esc(e.id)}</h1><p class="dek">${esc(e.question)}</p><p>${esc(e.kind)} · ${esc(e.status)} · ${day(e.created)} · by ${esc(e.agent)} · tests <a href="#/h/${esc(e.hypothesis_id)}">${esc(e.prediction_id)}</a>${e.replication_of ? ` · replicates <a href="#/e/${esc(e.replication_of)}">${esc(e.replication_of)}</a>` : ""}</p><p>Receipt: <a href="#/r/${esc(e.receipt_id)}">${esc(e.receipt_id)}</a></p>` : `<p>No experiment ${esc(id)}.</p>`;
+    html = e ? `<h1 style="text-align:left">${esc(e.id)}</h1><p class="dek">${esc(e.question)}</p><p>${esc(e.kind)} · ${esc(e.status)} · ${day(e.created)} · by ${esc(WHO(e.agent))} · tests <a href="#/h/${esc(e.hypothesis_id)}">${esc(e.prediction_id)}</a>${e.replication_of ? ` · replicates <a href="#/e/${esc(e.replication_of)}">${esc(e.replication_of)}</a>` : ""}</p><p>Receipt: <a href="#/r/${esc(e.receipt_id)}">${esc(e.receipt_id)}</a></p>` : `<p>No experiment ${esc(id)}.</p>`;
   } else {
     const r = S.receipts.find(x => x.id === id);
     html = r ? `<h1 style="text-align:left">${esc(r.id)}</h1><p class="dek">${esc(r.question)}</p><p>${TAG(r.level)}</p><div class="receipt">${esc(JSON.stringify(r, null, 1))}</div>` : `<p>Receipt ${esc(id)} is older than the published window.</p>`;

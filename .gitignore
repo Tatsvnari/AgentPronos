@@ -1,0 +1,9 @@
+# live research state (the ledger is the record; publish it deliberately, never by accident)
+state/
+site/status.json
+__pycache__/
+*.pyc
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+.env

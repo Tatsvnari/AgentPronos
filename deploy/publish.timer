@@ -1,0 +1,7 @@
+[Unit]
+Description=Publish the vault research record every 10 minutes
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=10min
+[Install]
+WantedBy=timers.target

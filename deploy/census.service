@@ -1,0 +1,9 @@
+[Unit]
+Description=AgentPronos: refresh the census from UniProtKB
+After=network-online.target
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/agentpronos
+ExecStart=/usr/bin/python3 /opt/agentpronos/run.py census
+Nice=19
+MemoryMax=768M

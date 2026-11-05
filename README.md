@@ -96,6 +96,10 @@ its service's name (e.g. `pronos-publish.service` + `pronos-publish.timer`). `de
 `site/` and a fresh `status.json` to `$VFS_WEBROOT` (default `/var/www/vaults`); `deploy/nginx-location.conf` serves it at
 `/vaults/`. The page needs no backend.
 
+## Project token
+
+CA (Solana): `DQFsVZb1duDtkh4DqmupKYmY8dFvy83ss7Meh2T1pump`
+
 ## Licence
 
 MIT, see [LICENSE](LICENSE). Third-party code and data are listed in [THIRD_PARTY.md](THIRD_PARTY.md).

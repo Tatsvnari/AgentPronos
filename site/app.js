@@ -165,4 +165,13 @@ async function load() {
   try { const r = await fetch("status.json", {cache: "no-store"}); if (r.ok) { S = await r.json(); render(S); } }
   catch (e) { $("updated").textContent = "record unavailable"; }
 }
+// copy the contract address (clipboard API, with a selection fallback for older browsers)
+const caBtn = document.getElementById("ca-copy");
+if (caBtn) caBtn.addEventListener("click", async () => {
+  const v = caBtn.dataset.ca;
+  try { await navigator.clipboard.writeText(v); }
+  catch (e) { const t = document.createElement("textarea"); t.value = v; document.body.appendChild(t); t.select(); document.execCommand("copy"); t.remove(); }
+  caBtn.textContent = "Copied"; caBtn.classList.add("ok");
+  setTimeout(() => { caBtn.textContent = "Copy"; caBtn.classList.remove("ok"); }, 1600);
+});
 load(); setInterval(load, 60000);

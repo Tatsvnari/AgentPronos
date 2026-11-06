@@ -23,7 +23,9 @@ from . import census, evolution, ledger, ligand, loop, memory, structure
 
 AGENT = "Pronos"            # records written before the rename carry its former name, Corbel
 PROPS = {"length": "protein length", "repeats": "number of annotated MVP repeat domains", "shoulder": "having a shoulder domain",
-         "residual": "chain length beyond what the repeat count predicts"}
+         "residual": "chain length beyond what the repeat count predicts",
+         "repeats_scan": "number of repeat domains found by a uniform scan of the sequences",
+         "residual_scan": "chain length beyond what the scanned repeat count predicts"}
 SPLITS = {
     "prok_euk": ("prokaryotic", "eukaryotic", lambda r: r["domain"] in ("Bacteria", "Archaea"), lambda r: r["domain"] == "Eukaryota"),
     "metazoa": ("animal", "other eukaryotic", lambda r: r["phylum"] == "Metazoa", lambda r: r["domain"] == "Eukaryota" and r["phylum"] != "Metazoa"),
@@ -36,7 +38,7 @@ MIN_N = 5
 def questions():
     qs = []
     for sp, (a, b, _, _) in SPLITS.items():
-        for pr, label in [(k, v) for k, v in PROPS.items() if k != "residual"]:   # residual questions come only from memory
+        for pr, label in [(k, v) for k, v in PROPS.items() if k in ("length", "repeats", "shoulder")]:   # the rest come only from memory
             qs.append({"key": "cmp:%s:%s" % (sp, pr), "split": sp, "prop": pr, "kind": "compare",
                        "text": "Do %s vault proteins differ from %s ones in %s?" % (a, b, label)})
     qs.append({"key": "cor:length:repeats", "prop": "length", "kind": "correlate",
@@ -72,6 +74,8 @@ def _answers(q):
     a, b = SPLITS[q["split"]][:2]
     A = a.capitalize()
     more, less = {"residual": ("are longer for their repeat count", "are shorter for their repeat count"),
+                  "repeats_scan": ("carry more repeat domains when every protein is scanned the same way", "carry fewer repeat domains when every protein is scanned the same way"),
+                  "residual_scan": ("are longer for their scanned repeat count", "are shorter for their scanned repeat count"),
                   "length": ("are longer", "are shorter"), "repeats": ("carry more repeat domains", "carry fewer repeat domains"),
                   "shoulder": ("more often have a shoulder domain", "less often have a shoulder domain")}[q["prop"]]
     return [("gt", "%s vault proteins %s than %s ones." % (A, more, b),
@@ -84,7 +88,9 @@ def _answers(q):
 
 # ---------------- data ----------------
 def _rows():
-    return [dict(r) for r in ledger.db().execute("SELECT acc,domain,phylum,genus,length,repeats,shoulder,partition FROM census")]
+    cols = [r[1] for r in ledger.db().execute("PRAGMA table_info(census)")]
+    extra = ",repeats_scan" if "repeats_scan" in cols else ""
+    return [dict(r) for r in ledger.db().execute("SELECT acc,domain,phylum,genus,length,repeats,shoulder,partition%s FROM census" % extra)]
 
 
 def _val(r, prop):
@@ -94,12 +100,15 @@ def _val(r, prop):
 def _groups(q, partition=None, per_genus=False):
     _, _, fa, fb = SPLITS[q["split"]]
     rows = [r for r in _rows() if partition is None or r["partition"] == partition]
-    if q["prop"] == "residual":
-        rows = [r for r in rows if r["repeats"] > 0]
+    if q["prop"] in ("residual", "residual_scan"):
+        rk = "repeats" if q["prop"] == "residual" else "repeats_scan"
+        rows = [r for r in rows if (r.get(rk) or 0) > 0]
         if len(rows) > 2:
-            b, a = np.polyfit([r["repeats"] for r in rows], [r["length"] for r in rows], 1)
+            b, a = np.polyfit([r[rk] for r in rows], [r["length"] for r in rows], 1)
             for r in rows:
-                r["residual"] = r["length"] - (a + b * r["repeats"])
+                r[q["prop"]] = r["length"] - (a + b * r[rk])
+    if q["prop"] == "repeats_scan":
+        rows = [r for r in rows if r.get("repeats_scan") is not None]
     out = []
     for f in (fa, fb):
         sel = [r for r in rows if f(r)]

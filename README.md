@@ -53,6 +53,11 @@ hypothesis, prediction, hash or outcome. It indexes every finding, links finding
 tension becomes a new question with competing answers, which the agent freezes and runs like any other. When Pronos runs out of
 questions, it re-reads its memory.
 
+When a tension rests on a measurement taken from database annotation, memory also proposes re-measuring it independently.
+`rescan.py` recounts vault repeat domains for every protein with one uniform, sensitive scan (pyhmmer, the four Pfam MVP repeat
+models, per-domain E <= 1) and the same comparisons are re-run with frozen predictions. The first such check weakened an earlier
+result: the animal excess of annotated repeats shrank and failed on held-out genera, logged as contradiction C001.
+
 ```bash
 python run.py memory review                         # the wake-up pass: links, tensions, new questions
 python run.py memory recall "animal repeat domains"  # retrieval over the whole record, for any agent or model
@@ -72,6 +77,7 @@ pronos/
   ligand.py      pocket-molecule candidates and prospective predictions
   sources.py     HTTP connectors; every source's release/date is recorded
   memory.py      scientific memory: findings, links, tensions, proposals, recall (read-only over the ledger)
+  rescan.py      uniform repeat rescan (pyhmmer + Pfam MVP repeat models): an annotation-independent measurement
   publish.py     writes site/status.json from the ledger
 site/            static page: index.html, app.js, cell.js (figure 1), lab.js (figure 2, Pronos at work), tree.js (figure 3), vault.css, vendor/three
 deploy/          systemd units, nginx location, publish script

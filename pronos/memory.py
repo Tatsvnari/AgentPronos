@@ -83,14 +83,21 @@ def links_and_tensions(F):
 
 
 def proposals(T):
-    """Each tension becomes a question about the part of y that x does not explain."""
+    """Each tension becomes questions: one about the part of y that x does not explain, and, because x is an annotation-based
+    measurement, the same comparisons re-measured by an independent method (an artefact check)."""
     out = []
     for t in T:
         if (t["x"], t["y"]) == ("repeats", "length"):
+            a, b = _names(t["split"])
             out.append({"key": "cmp:%s:residual" % t["split"], "split": t["split"], "prop": "residual", "kind": "compare",
                         "from_tension": t["id"],
-                        "text": "Once repeat count is accounted for, do %s vault proteins have longer or shorter chains than %s ones?"
-                                % _names(t["split"])})
+                        "text": "Once repeat count is accounted for, do %s vault proteins have longer or shorter chains than %s ones?" % (a, b)})
+            out.append({"key": "cmp:%s:repeats_scan" % t["split"], "split": t["split"], "prop": "repeats_scan", "kind": "compare",
+                        "from_tension": t["id"], "needs": "rescan",
+                        "text": "Counting repeats the same way for every protein, do %s vault proteins still carry more repeat domains than %s ones, or was the difference an annotation artefact?" % (a, b)})
+            out.append({"key": "cmp:%s:residual_scan" % t["split"], "split": t["split"], "prop": "residual_scan", "kind": "compare",
+                        "from_tension": t["id"], "needs": "rescan",
+                        "text": "With repeats counted the same way for every protein, do %s vault proteins have longer or shorter chains for their repeat count than %s ones?" % (a, b)})
     return out
 
 
@@ -118,6 +125,10 @@ def review():
     if new:
         ledger.kv_set("memory_questions", ledger.kv_get("memory_questions", []) + [
             {k: p[k] for k in ("key", "split", "prop", "kind", "text", "from_tension")} for p in new])
+    if any(p.get("needs") == "rescan" for p in new):
+        from . import rescan
+        if not rescan.done():
+            rescan.run()
     seen = set(ledger.kv_get("memory_seen_tensions", []))
     for t in m["tensions"]:
         if t["id"] not in seen:

@@ -5,13 +5,14 @@
   run.py publish <webroot>   write <webroot>/status.json
   run.py tick [n]            run n autonomous agent steps
   run.py agent [seconds]     run the agent forever, one step per interval
+  run.py memory [show|review|recall <text>]   scientific memory (read-only over the record)
   run.py loop ...            research loop commands (see pronos/loop.py)"""
 import json
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from pronos import agent, census, ledger, loop, publish  # noqa: E402
+from pronos import agent, census, ledger, loop, memory, publish  # noqa: E402
 
 if __name__ == "__main__":
     a = sys.argv[1:]
@@ -25,6 +26,14 @@ if __name__ == "__main__":
             print(agent.tick())
     elif cmd == "agent":
         agent.run_forever(int(a[1]) if len(a) > 1 else 300)
+    elif cmd == "memory":
+        sub = a[1] if len(a) > 1 else "show"
+        if sub == "recall":
+            print(json.dumps(memory.recall(" ".join(a[2:])), indent=1))
+        elif sub == "review":
+            print(json.dumps(memory.review()["counts"]))
+        else:
+            print(json.dumps(memory.build(), indent=1))
     elif cmd == "loop":
         loop.main(a[1:])
     else:

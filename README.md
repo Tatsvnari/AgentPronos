@@ -45,6 +45,20 @@ candidate explanation. A hypothesis needs a passed held-out test and a passed re
 Out of scope: analysis of genes neighbouring vault genes, and literature mining. Laboratory questions are written up as
 handoffs for qualified researchers, never simulated.
 
+## Scientific memory
+
+Pronos keeps a memory built from its own record. The ledger stays the source of truth: memory only reads it, and never edits a
+hypothesis, prediction, hash or outcome. It indexes every finding, links findings that bear on each other, and flags a
+**tension** when two supported results, chained together, predict something a third supported result says is not so. Each
+tension becomes a new question with competing answers, which the agent freezes and runs like any other. When Pronos runs out of
+questions, it re-reads its memory.
+
+```bash
+python run.py memory review                         # the wake-up pass: links, tensions, new questions
+python run.py memory recall "animal repeat domains"  # retrieval over the whole record, for any agent or model
+python run.py memory show                            # everything, as JSON (also published in status.json)
+```
+
 ## Layout
 
 ```
@@ -57,8 +71,9 @@ pronos/
   structure.py   PDB catalogue and watcher
   ligand.py      pocket-molecule candidates and prospective predictions
   sources.py     HTTP connectors; every source's release/date is recorded
+  memory.py      scientific memory: findings, links, tensions, proposals, recall (read-only over the ledger)
   publish.py     writes site/status.json from the ledger
-site/            static page: index.html, app.js, cell.js (figure 1), tree.js (figure 2), vault.css, vendor/three
+site/            static page: index.html, app.js, cell.js (figure 1), lab.js (figure 2, Pronos at work), tree.js (figure 3), vault.css, vendor/three
 deploy/          systemd units, nginx location, publish script
 tests/           ledger and rule tests
 run.py           command line

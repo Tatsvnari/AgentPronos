@@ -19,10 +19,11 @@ import time
 import numpy as np
 from scipy import stats as sst
 
-from . import census, evolution, ledger, ligand, loop, structure
+from . import census, evolution, ledger, ligand, loop, memory, structure
 
 AGENT = "Pronos"            # records written before the rename carry its former name, Corbel
-PROPS = {"length": "protein length", "repeats": "number of annotated MVP repeat domains", "shoulder": "having a shoulder domain"}
+PROPS = {"length": "protein length", "repeats": "number of annotated MVP repeat domains", "shoulder": "having a shoulder domain",
+         "residual": "chain length beyond what the repeat count predicts"}
 SPLITS = {
     "prok_euk": ("prokaryotic", "eukaryotic", lambda r: r["domain"] in ("Bacteria", "Archaea"), lambda r: r["domain"] == "Eukaryota"),
     "metazoa": ("animal", "other eukaryotic", lambda r: r["phylum"] == "Metazoa", lambda r: r["domain"] == "Eukaryota" and r["phylum"] != "Metazoa"),
@@ -35,7 +36,7 @@ MIN_N = 5
 def questions():
     qs = []
     for sp, (a, b, _, _) in SPLITS.items():
-        for pr, label in PROPS.items():
+        for pr, label in [(k, v) for k, v in PROPS.items() if k != "residual"]:   # residual questions come only from memory
             qs.append({"key": "cmp:%s:%s" % (sp, pr), "split": sp, "prop": pr, "kind": "compare",
                        "text": "Do %s vault proteins differ from %s ones in %s?" % (a, b, label)})
     qs.append({"key": "cor:length:repeats", "prop": "length", "kind": "correlate",
@@ -44,6 +45,8 @@ def questions():
                "text": "Do prokaryotic vault proteins resemble each other more than they resemble eukaryotic vault proteins?"})
     qs.append({"key": "nn:coherence", "kind": "neighbour", "what": "coherence", "prop": "sequence",
                "text": "Is a prokaryotic vault protein most similar to vaults from its own phylum, as vertical inheritance predicts?"})
+    for m in ledger.kv_get("memory_questions", []):
+        qs.append(dict(m))
     return qs
 
 
@@ -68,7 +71,8 @@ def _answers(q):
                  "Shell size would then depend on parts of the chain other than the repeats.")]
     a, b = SPLITS[q["split"]][:2]
     A = a.capitalize()
-    more, less = {"length": ("are longer", "are shorter"), "repeats": ("carry more repeat domains", "carry fewer repeat domains"),
+    more, less = {"residual": ("are longer for their repeat count", "are shorter for their repeat count"),
+                  "length": ("are longer", "are shorter"), "repeats": ("carry more repeat domains", "carry fewer repeat domains"),
                   "shoulder": ("more often have a shoulder domain", "less often have a shoulder domain")}[q["prop"]]
     return [("gt", "%s vault proteins %s than %s ones." % (A, more, b),
              "A lineage-specific change in vault architecture.", "The two groups build their shells differently."),
@@ -90,6 +94,12 @@ def _val(r, prop):
 def _groups(q, partition=None, per_genus=False):
     _, _, fa, fb = SPLITS[q["split"]]
     rows = [r for r in _rows() if partition is None or r["partition"] == partition]
+    if q["prop"] == "residual":
+        rows = [r for r in rows if r["repeats"] > 0]
+        if len(rows) > 2:
+            b, a = np.polyfit([r["repeats"] for r in rows], [r["length"] for r in rows], 1)
+            for r in rows:
+                r["residual"] = r["length"] - (a + b * r["repeats"])
     out = []
     for f in (fa, fb):
         sel = [r for r in rows if f(r)]
@@ -279,7 +289,7 @@ def step(hid, kind):
                 if share > 0.4:
                     notes.append("%.0f%% of prokaryotic discovery proteins are %s, so one phylum carries most of the signal" % (share * 100, top))
                     confound = q["what"] == "coherence"
-        if q["prop"] == "repeats" or q["kind"] == "correlate":
+        if q["prop"] in ("repeats", "residual") or q["kind"] == "correlate":
             z = sum(r["repeats"] == 0 for r in rows) / max(1, len(rows))
             notes.append("%.0f%% of discovery proteins have no annotated repeat domain, so repeat counts are lower bounds" % (z * 100))
         text = ("; ".join(notes) + ".") if notes else "No single genus dominates either group and no annotation gap applies."
@@ -345,6 +355,13 @@ def tick():
         _save(s)
         return "%s %s" % (hid, kind)
     new = [q for q in questions() if q["key"] not in s["asked"]]
+    if not new and now - s.get("memory_ts", 0) > 6 * 3600:
+        ledger.event("Scheduler", "plan", "Next: memory review. No open questions left, so Pronos re-reads its record for connections and tensions.")
+        memory.review()
+        s["memory_ts"] = now
+        s.pop("rung_done", None)
+        _save(s)
+        return "memory review"
     if new:
         q = new[0]
         ask(q)

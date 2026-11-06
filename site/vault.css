@@ -82,6 +82,16 @@ ol.branches .note { grid-column:1 / -1; color:var(--grey); font-size:13.5px }
 .receipt { font:12px/1.55 var(--mono); white-space:pre-wrap; overflow-wrap:anywhere; background:#f2efe6; padding:12px 14px; border-radius:3px; margin:10px 0 }
 ol.accs { columns:2; column-gap:24px; font:12.5px/1.6 var(--sans); padding-left:18px; margin:6px 0 }
 
+.atwork { position:relative; margin:30px calc(50% - min(500px, 50vw - 16px)) 0; overflow:hidden }
+.atwork canvas { width:100%; height:min(58vh, 540px); min-height:360px; display:block }
+#lab-labels { position:absolute; inset:0 0 auto 0; height:100%; pointer-events:none }
+.lab-l { position:absolute; left:0; top:0; font:500 11px var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--grey); background:rgba(250,249,245,.85); padding:2px 7px; border-radius:2px; white-space:nowrap; transition:color .3s, background .3s }
+.lab-l.on { color:var(--paper); background:var(--teal) }
+.lab-cap { position:relative; margin:6px 16px 0; font:13px/1.5 var(--mono); color:#3b3a36; background:rgba(250,249,245,.9); padding:8px 12px; border-left:2px solid var(--teal); min-height:3em }
+.lab-cap .lab-t { color:var(--grey) }
+.mem { border-top:1.5px solid var(--ink); margin:12px 0 }
+.mem .t { padding:10px 0; border-bottom:1px solid var(--rule); font:14.5px/1.55 var(--sans) }
+.mem .t .k { font:11px var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--gold); display:block; margin-bottom:3px }
 .nave { position:relative; height:min(80vh, 760px); min-height:440px; margin-top:40px; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule) }
 #tree-info { margin:18px 0 0; font:14.5px/1.55 var(--sans); min-height:40px }
 footer { margin:80px 0 60px; font:12.5px/1.6 var(--sans); color:var(--grey) }
@@ -90,7 +100,7 @@ footer { margin:80px 0 60px; font:12.5px/1.6 var(--sans); color:var(--grey) }
 .back { font:13px var(--sans); display:inline-block; margin:30px 0 0 }
 svg.conf { width:100%; height:150px; display:block; margin:10px 0 }
 svg.conf text { font:11px var(--mono); fill:var(--grey) }
-@media (max-width:640px) { table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch } .bar .live { display:none } .bar .in { flex-wrap:wrap; row-gap:8px } .bar .right { width:100%; justify-content:space-between } .hero { height:min(112vw, 70vh); min-height:340px } body { font-size:16px } .bars { grid-template-columns:110px minmax(0,1fr) 40px } figcaption, .cap { grid-template-columns:1fr } ol.accs { columns:1 } }
+@media (max-width:640px) { .atwork canvas { height:96vw; min-height:0 } table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch } .bar .live { display:none } .bar .in { flex-wrap:wrap; row-gap:8px } .bar .right { width:100%; justify-content:space-between } .hero { height:min(112vw, 70vh); min-height:340px } body { font-size:16px } .bars { grid-template-columns:110px minmax(0,1fr) 40px } figcaption, .cap { grid-template-columns:1fr } ol.accs { columns:1 } }
 
 .now { display:grid; grid-template-columns:86px minmax(0,1fr); gap:0 16px; margin:26px 0 8px; padding:12px 0; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); font:14.5px/1.5 var(--sans) }
 .now .lab { font:11px/2 var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--teal) }

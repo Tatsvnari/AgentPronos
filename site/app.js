@@ -113,8 +113,21 @@ function receipts(s) {
     }</tbody></table>`;
 }
 
+function memoryView(s) {
+  const m = s.memory;
+  if (!m) { $("memory").innerHTML = ""; return; }
+  const asked = new Map((s.hypotheses || []).filter(h => h.question).map(h => [h.question, h]));
+  const items = m.tensions.map(t => {
+    const p = m.proposals.find(x => x.from_tension === t.id);
+    const hs = p ? (s.hypotheses || []).filter(h => h.question === p.text) : [];
+    const best = hs.length ? hs.reduce((a, b) => b.confidence > a.confidence ? b : a) : null;
+    return `<div class="t"><span class="k">Tension · ${esc(t.id)}</span>${esc(t.text)}${p ? `<br><b>Question it raised:</b> ${esc(p.text)} ${best ? `<br><b>Leading answer so far:</b> <a href="#/h/${esc(best.id)}">${esc(best.statement)}</a> (${esc(best.level.toLowerCase())}, ${best.confidence.toFixed(2)})` : '<span class="dim">(queued; Pronos will freeze its answers and run it)</span>'}` : ""}</div>`;
+  }).join("");
+  $("memory").innerHTML = `<p class="dim" style="font:13px var(--sans)">${m.counts.findings} findings · ${m.counts.links} links between them · ${m.counts.tensions} tension${m.counts.tensions === 1 ? "" : "s"}. Any agent or model can query it: <span class="mono">python run.py memory recall "&lt;question&gt;"</span>.</p>` + (items ? `<div class="mem">${items}</div>` : "");
+}
+
 function render(s) {
-  state(s); stream(s); hyps(s); structures(s); ligands(s); census(s); branches(s); receipts(s);
+  state(s); stream(s); hyps(s); memoryView(s); structures(s); ligands(s); census(s); branches(s); receipts(s);
   list("negatives", s.negatives, "None yet. Negative results will be published here in full, never deleted.", n =>
     `<p><b class="mono">${esc(n.id)}</b> · ${esc(n.hypothesis_id)} · tested: ${esc(n.tested)}. Expected: ${esc(n.expected)}. Actual: ${esc(n.actual)}. <a href="#/e/${esc(n.experiment_id)}">${esc(n.experiment_id)}</a></p>`);
   list("contras", s.contradictions, "None open.", c => `<p><b class="mono">${esc(c.id)}</b> · ${esc(c.hypothesis_id)} · ${esc(c.text)} <span class="tag ${c.status === "open" ? "hyp" : "obs"}">${esc(c.status)}</span></p>`);

@@ -53,6 +53,12 @@
   <li><b>Judge.</b> Confidence moves by a fixed rule from those results alone. A wrong answer sinks; one that survives every step rises. Then Pronos picks the next step that should teach it the most.</li>
 </ol>
 
+<figure class="atwork" aria-label="Figure 2: Pronos at work, replaying its latest steps">
+  <canvas id="lab"></canvas><div id="lab-labels"></div>
+  <div id="lab-cap" class="lab-cap">Reading the record…</div>
+</figure>
+<div class="cap"><span class="lab">Figure 2</span><span>Pronos at work. Each clay station is one step of the loop, and the vault in the middle is Pronos. The token travels to the station its real latest steps used, replayed from the record, and turns teal for a pass, red for a fail, grey when the data can't decide. Every step drops a receipt on the stack. Steps with no station (choosing what to do next, re-reading its memory) light up the agent itself.</span></div>
+
 <h3>Where it is now</h3>
 <p><b>Rung one: what vaults are built like.</b> Before asking what vaults do, Pronos establishes how vault proteins are built across the tree of life: how long they are, how many repeating wall segments they carry, and whether the shoulder domain is present. It compares bacteria and archaea with eukaryotes, and animals with other eukaryotes. Its data is the census below: every vault-family protein in UniProtKB.</p>
 <p><b>Also running.</b> An evolution branch tests whether prokaryotic vaults form their own family and whether they group by phylum. A structure branch catalogues every released vault structure and watches for the L05 phage vault. A ligand branch ranks candidates for the molecule in the L05 pocket and has frozen its predictions before the map is public.</p>
@@ -79,6 +85,9 @@
 
 <h2><span class="n">03</span>Hypotheses</h2>
 <div id="hyps"></div>
+<h3>What Pronos remembers</h3>
+<p>Pronos keeps a scientific memory built from its own record. It never edits the record: it links findings that bear on each other, flags when two supported results imply something a third contradicts, and turns each such tension into a new question with frozen predictions.</p>
+<div id="memory"></div>
 
 <h2><span class="n">04</span>The unidentified molecule</h2>
 <p>A pocket partway up each of the 96 protein copies in the L05 phage vault holds a small molecule that shows clearly in the cryo-EM map and has not been identified. The group that solved the structure reported that its shape resembles coenzyme A, and that if it is coenzyme A or something similar it would be an early hint at a function. <span class="tag obs">Observation</span> (reported; <a href="https://www.anthropic.com/research/investigating-vault-particles-with-claude" rel="noopener">source</a>)</p>
@@ -121,7 +130,7 @@
 </div>
 
 <div class="nave"><canvas id="tree"></canvas><div class="tip" id="tree-tip" hidden></div></div>
-<div class="wide"><div class="cap"><span class="lab">Figure 2</span><span>The census as a tree. Arches run from the root to the three domains, then to phyla and genera; every vault-family protein is one small barrel stacked on its genus. Pale barrels are held out for validation. Domains are spaced by the square root of their number of genera so the rare prokaryotic vaults stay visible: teal is bacteria, gold archaea, mauve eukaryotes. Drag to turn, scroll to move closer, click a stack to read it.</span></div>
+<div class="wide"><div class="cap"><span class="lab">Figure 3</span><span>The census as a tree. Arches run from the root to the three domains, then to phyla and genera; every vault-family protein is one small barrel stacked on its genus. Pale barrels are held out for validation. Domains are spaced by the square root of their number of genera so the rare prokaryotic vaults stay visible: teal is bacteria, gold archaea, mauve eukaryotes. Drag to turn, scroll to move closer, click a stack to read it.</span></div>
 <div id="tree-info" class="col"></div>
 <footer class="col">Pronos is an independent computational project. Structural facts about the L05 vault are quoted from its authors' public report; nothing here speaks for them. Data from UniProtKB under CC BY 4.0.</footer>
 </div>
@@ -131,5 +140,6 @@
 
 <script type="module" src="app.js"></script>
 <script type="module" src="cell.js"></script>
+<script type="module" src="lab.js"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@ import json
 import os
 import time
 
-from . import census, ledger
+from . import census, ledger, memory
 
 BRANCHES = [
     ("census", "Vault census", "running"),
@@ -68,6 +68,7 @@ def build():
         "sources": ledger.source_versions(),
         "census": census.summary(),
         "leaves": leaves,
+        "memory": memory.build(),
         "branches": [{"id": a, "name": b, "status": s_} for a, b, s_ in BRANCHES],
     }
     s["census"]["located"] = sum(l["located"] for l in leaves)
